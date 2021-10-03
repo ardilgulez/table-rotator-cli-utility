@@ -45,4 +45,8 @@ describe("Table Rotator", () => {
     it("Should not parse a non-square table", () => {
         expect(rotateTable([1, 2])).to.be.false;
     });
+
+    it("Should not parse false", () => {
+        expect(rotateTable(false)).to.be.false;
+    });
 });
