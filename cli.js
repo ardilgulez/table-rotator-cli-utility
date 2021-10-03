@@ -7,7 +7,7 @@ const { rotateTable } = require("./src/table-rotator");
 const { processList } = require("./src/list-processor");
 
 if (process.argv.length !== 3) {
-    console.log("Usage: node cli.js <path_to_input_csv>");
+    console.log("Usage: node cli.js <path-to-input-csv>");
     return;
 }
 
@@ -24,19 +24,27 @@ const transformer = () => {
     return new Transform({
         objectMode: true,
         transform: (data, _, done) => {
-            const list = JSON.parse(data.json);
-            const rotatedTable = rotateTable(processList(list));
-            if (!rotatedTable) {
+            try {
+                const list = JSON.parse(data.json);
+                const rotatedTable = rotateTable(processList(list));
+                if (!rotatedTable) {
+                    done(null, {
+                        id: data.id,
+                        json: JSON.stringify([]),
+                        is_valid: false,
+                    });
+                } else {
+                    done(null, {
+                        id: data.id,
+                        json: JSON.stringify(rotatedTable.flat()),
+                        is_valid: true,
+                    });
+                }
+            } catch (e) {
                 done(null, {
                     id: data.id,
                     json: JSON.stringify([]),
                     is_valid: false,
-                });
-            } else {
-                done(null, {
-                    id: data.id,
-                    json: JSON.stringify(rotatedTable.flat()),
-                    is_valid: true,
                 });
             }
         },
@@ -44,7 +52,10 @@ const transformer = () => {
 };
 
 createReadStream(csvPath)
+    .on("error", (err) => console.error(err))
     .pipe(csvReadStream)
+    .on("error", (err) => console.error(err))
     .pipe(transformer())
+    .on("error", (err) => console.error(err))
     .pipe(csvWriteStream)
     .pipe(process.stdout);

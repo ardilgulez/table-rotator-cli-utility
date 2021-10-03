@@ -45,3 +45,10 @@ const rotateTable = (items) => {
 module.exports = {
     rotateTable,
 };
+
+console.log(
+    rotateTable([
+        [1, 2],
+        [3, 4],
+    ])
+);
