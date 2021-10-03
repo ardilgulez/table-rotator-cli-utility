@@ -1,4 +1,7 @@
 const rotateTable = (items) => {
+    if (!items) {
+        return false;
+    }
     if (items.length === 0) {
         return [];
     }
